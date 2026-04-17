@@ -1,6 +1,25 @@
-__pycache__/
-*.pyc
-.env
-venv/
 .DS_Store
 models/
+
+# ESP-IDF build output 
+build/
+sdkconfig
+sdkconfig.old
+
+# ESP-IDF IDE / tools
+.vscode/
+*.swp
+
+# Logs
+.log
+
+# Flash / output files
+.bin
+.elf 
+.log 
+
+# Python 
+*.pyc
+__pycache__/
+.env
+venv/
