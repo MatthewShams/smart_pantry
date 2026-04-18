@@ -9,6 +9,8 @@ static/latest_scan.jpg
 *.kicad_sch.lck
 *.kicad_pcb.lck
 fp-info-cache
+*.zip
 
 .vscode/
 .log
+schematics/#auto_saved_files#
