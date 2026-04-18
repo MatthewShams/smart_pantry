@@ -1,3 +1,3 @@
-# Smart Greenhouse
+# Smart Pantry
 
-Raspberry PI + OpenCV smart greenhouse system
+Raspberry PI + OpenCV smart pantry system
