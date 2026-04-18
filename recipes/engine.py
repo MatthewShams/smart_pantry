@@ -25,7 +25,7 @@ class RecipeEngine:
     # ── Recipe suggestions ────────────────────────────────────────────────
 
     def suggest_recipes(self, dietary_prefs: str = "", count: int = 3) -> dict:
-        """Ask Claude for recipes using current pantry contents."""
+        """Ask Gemini for recipes using current pantry contents."""
         names = self.get_available_names()
         if not names:
             return {"recipes": [], "error": "Pantry is empty — scan first"}
