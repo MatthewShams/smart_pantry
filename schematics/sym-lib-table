@@ -1,0 +1,5 @@
+(sym_lib_table
+  (version 7)
+  (lib (name "smart_pantry")(type "KiCad")(uri "./libraries/symbols/smart_pantry_symbols.kicad_sym")(options "")(descr ""))
+  (lib (name "smart_pantry_symbols")(type "KiCad")(uri "${KIPRJMOD}/libraries/symbols/smart_pantry_symbols.kicad_sym")(options "")(descr ""))
+)
