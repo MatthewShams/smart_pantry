@@ -1,5 +1,6 @@
 # Smart Pantry 🥫
 
+<<<<<<< HEAD
 AI-powered pantry monitor using a Raspberry Pi 4B, webcam, and WS2812B LED strips.
 
 ## Features
@@ -143,3 +144,6 @@ smart_pantry/
 - **Barcode scanning**: add `pyzbar` to read barcodes in `capture.py` before sending to Claude — great for exact expiry dates.
 - **Mobile push alerts**: add `pushover` or Telegram bot to `grocery/manager.py` when something expires.
 - **OLED display**: attach a 128×64 I²C OLED and show current recipe on the pantry door.
+=======
+Raspberry PI + OpenCV smart pantry system
+>>>>>>> 28b03e51d572cc167b1d39bc1a8399bdcc5cde28
