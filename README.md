@@ -1,4 +1,5 @@
 # Smart Pantry 🥫
+Designed and prototyped in 36 hours for Starkhacks
 
 ## What it does
 Smart Pantry is an AI-powered inventory management system. When the pantry door is opened, a camera automatically captures an image of the shelf, which is processed by Gemini to identify inventory. This is stored and is used to recommend recipes and keep track of products that are going bad.
