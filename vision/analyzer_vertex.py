@@ -12,6 +12,11 @@ model = GenerativeModel("gemini-2.0-flash")
 PANTRY_PROMPT = """You are an AI vision module in a smart pantry system.
 Analyze the shelf/pantry image and identify every visible food item.
 
+Rules:
+- Do NOT duplicate items — if you see the same product twice, list it once with quantity 2
+- Do NOT include non-food items like bags, backpacks, or packaging without contents
+- Use the most specific common name (e.g. "Coca-Cola" not "can of soda" and "Coca-Cola can")
+
 For each item return:
   name        - common name (e.g. "olive oil", "brown rice")
   category    - produce | dairy | grains | protein | condiment | beverage | snack | spice | other

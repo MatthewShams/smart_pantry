@@ -1,3 +1,3 @@
 # Smart Pantry 🥫
 
-Smart pantry system using Raspberry PI
+Gemini-powered pantry monitor built using a Rubik PI and ESP32.
