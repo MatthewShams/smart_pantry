@@ -2,4 +2,5 @@
   (version 7)
   (lib (name "smart_pantry")(type "KiCad")(uri "./libraries/symbols/smart_pantry_symbols.kicad_sym")(options "")(descr ""))
   (lib (name "smart_pantry_symbols")(type "KiCad")(uri "${KIPRJMOD}/libraries/symbols/smart_pantry_symbols.kicad_sym")(options "")(descr ""))
+  (lib (name "ESP32-WROOM-32E")(type "KiCad")(uri "C:/Users/matth/Downloads/ESP32-WROOM-32E.kicad_sym")(options "")(descr ""))
 )
