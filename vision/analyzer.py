@@ -1,37 +1,40 @@
-"""Vertex AI Gemini via direct API key - no gcloud login needed."""
+import subprocess, requests, json
 
-import json, base64, io, os
-import requests
-from config import GEMINI_API_KEY
+PROJECT_ID = "smartpantry-493703"
+LOCATION   = "us-central1"
+MODEL      = "gemini-2.5-flash-lite"
 
-MODEL = "gemini-2.5-flash-lite"
-API_URL = f"https://aiplatform.googleapis.com/v1/publishers/google/models/{MODEL}:generateContent"
+SCAN_PROMPT = """You are a smart pantry vision module.
+Analyze this 3-row × 2-column shelf (6 slots, numbered 0-5 left-to-right, top-to-bottom).
+Identify every visible food/drink item.
 
-PANTRY_PROMPT = """You are an AI vision module in a smart pantry system.
-Analyze the shelf/pantry image and identify every visible food item.
+Rules:
+- One entry per unique product. If you see duplicates of the same item, set quantity accordingly.
+- Ignore non-food objects (bags, packaging without contents, etc.).
+- Use specific names ("Diet Coke", not "soda can").
 
-For each item return:
-  name        - common name (e.g. "olive oil", "brown rice")
-  category    - produce | dairy | grains | protein | condiment | beverage | snack | spice | other
-  quantity    - numeric estimate or null
-  unit        - pieces | g | kg | ml | L | cup | null
-  shelf_slot  - integer 0-based position (0=top-left, left to right, top to bottom)
-  expiry_date - "YYYY-MM-DD" if visible, else null
-  notes       - brief observation or null
-
-Return ONLY valid JSON, no markdown, no explanation:
+Return ONLY valid JSON with no markdown fences:
 {
   "ingredients": [
-    {"name":"string","category":"string","quantity":null,"unit":null,"shelf_slot":0,"expiry_date":null,"notes":null}
+    {
+      "name": "string",
+      "category": "produce|dairy|grains|protein|condiment|beverage|snack|spice|other",
+      "quantity": 1,
+      "unit": "pieces|g|kg|ml|L|can|bottle|null",
+      "shelf_slot": 0,
+      "expiry_date": "YYYY-MM-DD or null",
+      "notes": "string or null"
+    }
   ],
-  "scan_notes": "one sentence summary"
+  "scan_notes": "one-sentence summary"
 }"""
 
 RECIPE_PROMPT = """You are a smart pantry chef assistant.
 Available ingredients: {ingredients}
 {dietary}
 Suggest {count} recipes using mostly pantry items.
-Return ONLY valid JSON, no markdown:
+
+Return ONLY valid JSON with no markdown fences:
 {{
   "recipes": [
     {{
@@ -39,54 +42,76 @@ Return ONLY valid JSON, no markdown:
       "uses_ingredients": ["..."],
       "missing_ingredients": ["..."],
       "prep_time_minutes": 30,
-      "difficulty": "easy",
+      "difficulty": "easy|medium|hard",
       "instructions": "1. Step one\\n2. Step two",
-      "tags": ["quick","vegetarian"]
+      "tags": ["quick", "vegetarian"]
     }}
   ]
 }}"""
 
-def _call(contents: list) -> str:
-    resp = requests.post(
-        API_URL,
-        headers={"Content-Type": "application/json"},
-        params={"key": GEMINI_API_KEY},
-        json={"contents": contents,
-              "generationConfig": {"temperature": 0.3, "maxOutputTokens": 2048}}
+
+def _token():
+    return subprocess.check_output(
+        ["gcloud", "auth", "print-access-token"]
+    ).decode("ascii").strip()
+
+
+def _url():
+    return (
+        f"https://{LOCATION}-aiplatform.googleapis.com/v1/projects/{PROJECT_ID}"
+        f"/locations/{LOCATION}/publishers/google/models/{MODEL}:generateContent"
     )
-    resp.raise_for_status()
-    return resp.json()["candidates"][0]["content"]["parts"][0]["text"]
+
 
 def _parse(text):
     text = text.strip()
     if text.startswith("```"):
-        text = text[text.index("\n")+1:]
+        text = text[text.index("\n") + 1:]
     if text.endswith("```"):
         text = text[:text.rindex("```")]
     return json.loads(text.strip())
 
+
 def analyze_pantry_image(image_b64: str) -> dict:
+    payload = {
+        "contents": [{
+            "role": "user",
+            "parts": [
+                {"text": SCAN_PROMPT},
+                {"inline_data": {"mime_type": "image/jpeg", "data": image_b64}},
+            ],
+        }]
+    }
     try:
-        contents = [{"role": "user", "parts": [
-            {"text": PANTRY_PROMPT},
-            {"inlineData": {"mimeType": "image/jpeg", "data": image_b64}}
-        ]}]
-        return _parse(_call(contents))
+        res      = requests.post(_url(), headers={"Authorization": f"Bearer {_token()}"}, json=payload, timeout=30)
+        res.raise_for_status()
+        raw_text = res.json()["candidates"][0]["content"]["parts"][0]["text"]
+        return _parse(raw_text)
+    except json.JSONDecodeError as e:
+        print(f"[vision] JSON parse error: {e}")
+        return {"ingredients": [], "scan_notes": f"Parse error: {e}"}
     except Exception as e:
         print(f"[vision] Error: {e}")
         return {"ingredients": [], "scan_notes": str(e)}
 
+
 def get_recipe_suggestions(ingredient_names: list, dietary_prefs: str = "", count: int = 3) -> dict:
     if not ingredient_names:
-        return {"recipes": [], "error": "No ingredients in pantry"}
+        return {"recipes": [], "error": "Pantry is empty — scan first"}
     prompt = RECIPE_PROMPT.format(
-        ingredients=", ".join(ingredient_names),
-        dietary=f"Dietary preferences: {dietary_prefs}" if dietary_prefs else "",
-        count=count
+        ingredients = ", ".join(ingredient_names),
+        dietary     = f"Dietary preferences: {dietary_prefs}" if dietary_prefs else "",
+        count       = count,
     )
+    payload = {"contents": [{"role": "user", "parts": [{"text": prompt}]}]}
     try:
-        contents = [{"role": "user", "parts": [{"text": prompt}]}]
-        return _parse(_call(contents))
+        res      = requests.post(_url(), headers={"Authorization": f"Bearer {_token()}"}, json=payload, timeout=30)
+        res.raise_for_status()
+        raw_text = res.json()["candidates"][0]["content"]["parts"][0]["text"]
+        return _parse(raw_text)
+    except json.JSONDecodeError as e:
+        print(f"[vision] Recipe JSON parse error: {e}")
+        return {"recipes": [], "error": f"Parse error: {e}"}
     except Exception as e:
         print(f"[vision] Recipe error: {e}")
         return {"recipes": [], "error": str(e)}

@@ -3,7 +3,7 @@
 from flask import Flask, jsonify, request, render_template, send_file
 from pantry.database import (
     get_all_ingredients, delete_ingredient, upsert_ingredient,
-    get_expiring_soon, get_expired, get_saved_recipes, save_recipe
+    get_expiring_soon, get_expired,
 )
 
 
@@ -95,22 +95,6 @@ def create_app(pantry_controller) -> Flask:
     @app.route("/api/recipes/clear", methods=["POST"])
     def clear_highlight():
         pantry_controller.recipe_engine.clear_highlight()
-        return jsonify({"success": True})
-
-    @app.route("/api/recipes/saved", methods=["GET"])
-    def saved_recipes():
-        return jsonify(get_saved_recipes())
-
-    @app.route("/api/recipes/saved", methods=["POST"])
-    def save_recipe_route():
-        d = request.json or {}
-        save_recipe(
-            name        = d.get("name", "Untitled"),
-            ingredients = d.get("uses_ingredients", []),
-            instructions= d.get("instructions", ""),
-            prep_time   = d.get("prep_time_minutes", 0),
-            tags        = d.get("tags", []),
-        )
         return jsonify({"success": True})
 
     # ── LEDs ──────────────────────────────────────────────────────────────

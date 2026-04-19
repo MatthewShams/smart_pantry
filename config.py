@@ -1,8 +1,8 @@
 import os
 
 # ── Google Gemini ─────────────────────────────────────────────────────────
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
-GEMINI_MODEL   = "gemini-1.5-pro"
+GEMINI_API_KEY = "APIKEYHERE"
+GEMINI_MODEL   = "gemini-2.5-flash-lite"
 
 # ── Camera ────────────────────────────────────────────────────────────────
 CAMERA_INDEX       = 0
@@ -10,13 +10,13 @@ CAPTURE_RESOLUTION = (1280, 720)
 SCAN_COOLDOWN_SEC  = 5
 
 # ── Pantry layout ─────────────────────────────────────────────────────────
-NUM_SHELF_SLOTS = 12
+NUM_SHELF_SLOTS = 6
 SHELF_ROWS      = 3
-SHELF_COLS      = 4
+SHELF_COLS      = 2
 
 # ── LED strip (Pi only, mocked on Windows) ────────────────────────────────
-LED_COUNT      = 12
-LED_PIN        = 18
+LED_COUNT      = 6
+LED_PIN        = 35
 LED_FREQ_HZ    = 800_000
 LED_DMA        = 10
 LED_BRIGHTNESS = 128
@@ -41,7 +41,7 @@ DB_PATH = "pantry.db"
 
 # ── Web server ────────────────────────────────────────────────────────────
 WEB_HOST = "0.0.0.0"
-WEB_PORT = 5000
+WEB_PORT = 5001
 DEBUG    = False
 
 # ── Expiry ────────────────────────────────────────────────────────────────
